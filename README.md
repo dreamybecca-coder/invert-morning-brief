@@ -1,4 +1,4 @@
-# 🤖 Invert Morning Brief
+# 🤖 Invert Morning Brief Skill
 
 > AI 产业链 + 投资资讯 · 每日自动聚合
 > 49个精选信源· Telegram 推送 · Obsidian 存档
