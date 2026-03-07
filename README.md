@@ -1,7 +1,7 @@
 # 🤖 Invert Morning Brief
 
-> AI 产业链 + 投资资讯每日自动聚合系统
-> 全自动 · 每日 08:30 · Telegram 推送 · Obsidian 存档
+> AI 产业链 + 投资资讯 · 每日自动聚合
+> 49个精选信源· Telegram 推送 · Obsidian 存档
 
 ---
 
