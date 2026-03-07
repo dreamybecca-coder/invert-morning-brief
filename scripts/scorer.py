@@ -169,6 +169,7 @@ def _merge_score(article: dict, llm_result: dict) -> dict:
         "total_score": total,
         "one_line": llm_result.get("one_line", "")[:30],
         "assets_affected": llm_result.get("assets_affected", [])[:3],
+        "event_cluster": llm_result.get("event_cluster", "standalone").strip().lower()[:60],
         # 中文摘要字段（v2.1 新增）
         "title_zh": llm_result.get("title_zh", article.get("title", ""))[:35],
         "fact": llm_result.get("fact", "")[:50],

@@ -174,66 +174,34 @@ python scripts/selector.py \
   --output daily_brief.json
 ```
 
-### 3.1 事件级语义去重（v3.0 核心升级）
+### 3.1 三层去重（v3.1）
 
-> **问题根源**：旧版 Jaccard 文本去重只能识别"文字重复"，
-> 无法识别"同一事件被不同媒体报道多次"。
-> 新版改为基于**命名实体组合**的事件指纹去重。
+同一事件多源重复是最影响内容质量的问题。selector.py 按顺序执行三层去重：
 
-```python
-def extract_event_fingerprint(article: dict) -> str:
-    """
-    提取文章的事件指纹：核心实体组合。
-    相同指纹 = 同一事件。
-    
-    逻辑：
-    1. 取 assets_affected（如 ["Anthropic", "Pentagon"]）
-    2. 排序后 join（顺序无关）
-    3. 如 assets_affected 为空，取 title_zh 前10字作为指纹
-    """
-    assets = sorted(article.get("assets_affected", []))
-    if assets:
-        return "|".join(assets).lower()
-    return article.get("title_zh", "")[:10]
+**第一层：实体指纹去重**
+- 取 `assets_affected` 排序后拼接（如 `"anthropic|pentagon"`）
+- 多实体精确匹配时去重，单实体不参与（避免误杀）
+- 适合：同事件、同实体、不同信源的精确匹配
 
+**第二层：事件簇去重（v3.1 新增，解决跨角度重复问题）**
+- LLM 在评分时为每篇文章生成 `event_cluster` 语义标签（如 `"anthropic-pentagon-ai-surveillance"`）
+- 同一事件的所有报道（无论角度、用词）必须生成完全相同的标签
+- 相同标签（非 `standalone`）只保留 `total_score` 最高的一篇
+- 适合：同事件、不同角度（快讯+深度分析+评论）的跨源去重
+- 日志标记：`[Cluster] 去重丢弃：xxx → 保留：yyy [cluster=anthropic-pentagon-ai-surveillance]`
 
-def deduplicate_by_event(articles: list) -> list:
-    """
-    同一事件指纹，只保留评分最高的一篇。
-    
-    规则：
-    - 相同指纹的文章视为同一事件
-    - 保留 total 最高的一篇
-    - 次高的文章标记为 dedup_reason: "same_event"，计入日志但不进入选取池
-    
-    特殊处理：
-    - 指纹为空或长度 < 3 的文章不参与事件去重（视为独立事件）
-    - 单实体指纹（如只有 "NVDA"）不参与去重（避免误杀）
-    """
-    from collections import defaultdict
-    
-    event_groups = defaultdict(list)
-    no_dedup = []
-    
-    for art in articles:
-        fp = extract_event_fingerprint(art)
-        if len(fp) < 3 or fp.count("|") == 0:
-            # 指纹太短或单实体：不去重
-            no_dedup.append(art)
-        else:
-            event_groups[fp].append(art)
-    
-    result = list(no_dedup)
-    for fp, group in event_groups.items():
-        # 按评分降序，只保留第一篇
-        group.sort(key=lambda x: x["total"], reverse=True)
-        result.append(group[0])
-        # 记录被去重的文章（用于日志）
-        for dropped in group[1:]:
-            dropped["dedup_reason"] = f"same_event:{fp}"
-    
-    return result
 ```
+示例（4篇 Anthropic/Pentagon 文章，全部标记为同一 cluster）：
+  ✅ 保留：五角大楼能否用AI监控美国公民（MIT, 13分）
+  ❌ 去重：Anthropic起诉五角大楼（MIT, 12分）
+  ❌ 去重：开放模型与政府控制的未来先例（Interconnects, 12分）
+  ❌ 去重：Anthropic与五角大楼合同分析（Simon Willison, 11分）
+```
+
+**第三层：Jaccard 文本相似度兜底**
+- 计算 `title_zh + title + one_line + assets_affected` 的词级 Jaccard 相似度
+- 同一信源阈值 0.15（更严格），跨信源阈值 0.25
+- 兜底捕捉前两层漏掉的文字相近文章
 
 ### 3.2 每桶配额
 

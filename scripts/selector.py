@@ -35,7 +35,8 @@ AI_QUOTAS = [
     ("Opinion",   2, 13),
     ("Research",  1, 12),
 ]
-JACCARD_THRESHOLD = 0.35
+JACCARD_THRESHOLD_SAME_SOURCE = 0.15   # 同一信源相似文章直接去重
+JACCARD_THRESHOLD_CROSS_SOURCE = 0.25  # 跨信源相同事件去重（含 assets_affected）
 FALLBACK_MIN_SCORE = 10
 TARGET_PER_BUCKET = 10
 
@@ -104,6 +105,44 @@ def _deduplicate_by_event(articles: list[dict]) -> tuple[list[dict], list[dict]]
     return kept, dropped_log
 
 
+# ── 事件簇去重（v3.1）────────────────────────────────────────────────────────
+
+def _deduplicate_by_cluster(articles: list[dict]) -> tuple[list[dict], list[dict]]:
+    """
+    LLM 语义标签去重：相同 event_cluster（非 standalone）只保留评分最高的一篇。
+    这是第二层去重，在指纹去重之后、Jaccard 去重之前执行。
+    """
+    cluster_groups: dict[str, list] = defaultdict(list)
+    standalone: list = []
+    dropped_log: list = []
+
+    for art in articles:
+        cluster = art.get("event_cluster", "standalone").strip().lower()
+        if not cluster or cluster == "standalone":
+            standalone.append(art)
+        else:
+            cluster_groups[cluster].append(art)
+
+    kept = list(standalone)
+
+    for cluster, group in cluster_groups.items():
+        group.sort(key=lambda x: x.get("total_score", 0), reverse=True)
+        kept.append(group[0])
+        for dropped in group[1:]:
+            dropped_log.append({
+                "title_zh":     dropped.get("title_zh", ""),
+                "source_name":  dropped.get("source_name", ""),
+                "total_score":  dropped.get("total_score", 0),
+                "dedup_reason": f"same_cluster:{cluster}",
+                "kept_instead": group[0].get("title_zh", ""),
+            })
+            log.info(f"[Cluster] 去重丢弃：{dropped.get('title_zh','')} "
+                     f"({dropped.get('source_name','')}, {dropped.get('total_score',0)}分) "
+                     f"→ 保留：{group[0].get('title_zh','')} [cluster={cluster}]")
+
+    return kept, dropped_log
+
+
 # ── Jaccard 去重 ──────────────────────────────────────────────────────────────
 
 def _tokenize(text: str) -> set[str]:
@@ -112,10 +151,16 @@ def _tokenize(text: str) -> set[str]:
 
 
 def _jaccard(a: dict, b: dict) -> float:
-    text_a = a.get("title", "") + " " + a.get("one_line", "")
-    text_b = b.get("title", "") + " " + b.get("one_line", "")
-    words_a = _tokenize(text_a)
-    words_b = _tokenize(text_b)
+    """Jaccard 相似度，文本包含 title_zh + title + one_line + assets_affected"""
+    def _text(art: dict) -> str:
+        return " ".join([
+            art.get("title_zh", ""),
+            art.get("title", ""),
+            art.get("one_line", ""),
+            " ".join(art.get("assets_affected", [])),
+        ])
+    words_a = _tokenize(_text(a))
+    words_b = _tokenize(_text(b))
     if not words_a or not words_b:
         return 0.0
     inter = words_a & words_b
@@ -124,16 +169,22 @@ def _jaccard(a: dict, b: dict) -> float:
 
 
 def _dedup_jaccard(articles: list[dict]) -> list[dict]:
-    """同一事件多篇报道只留最高分（已按分降序）"""
+    """同一事件多篇报道只留最高分（已按分降序）。
+    同源阈值 0.15，跨源阈值 0.25，均含 assets_affected 实体。
+    """
     kept: list[dict] = []
     group_counter = 0
     for art in articles:
         duplicate = False
         for existing in kept:
             j = _jaccard(art, existing)
-            if j > JACCARD_THRESHOLD:
-                # 新文章分更低（已排序），标记为重复
-                log.debug(f"[select] dedup Jaccard={j:.2f}: {art['title'][:40]}")
+            # 同一信源用更低阈值（更容易去重）
+            threshold = (JACCARD_THRESHOLD_SAME_SOURCE
+                         if art.get("source_name") == existing.get("source_name")
+                         else JACCARD_THRESHOLD_CROSS_SOURCE)
+            if j > threshold:
+                log.info(f"[Jaccard] 去重 j={j:.2f}>{threshold} "
+                         f"({art.get('source_name','')}): {art.get('title_zh','')[:30]}")
                 if "dedup_group" not in existing:
                     group_counter += 1
                     existing["dedup_group"] = f"event-{group_counter:03d}"
@@ -222,11 +273,17 @@ def run_select(date: str, dry_run: bool, input_file: str = "scored_articles.json
 
     log.info(f"[select] 输入: INV={len(invest_pool)} AI={len(ai_pool)}")
 
-    # 事件级去重（v3.0）
+    # 第一层：事件指纹去重（assets_affected 精确匹配）
     invest_pool, invest_dropped = _deduplicate_by_event(invest_pool)
     ai_pool, ai_dropped = _deduplicate_by_event(ai_pool)
-    log.info(f"[select] 去重后: INV={len(invest_pool)} (去除{len(invest_dropped)}篇) "
+    log.info(f"[select] 指纹去重后: INV={len(invest_pool)} (去除{len(invest_dropped)}篇) "
              f"AI={len(ai_pool)} (去除{len(ai_dropped)}篇)")
+
+    # 第二层：事件簇去重（LLM 语义标签，捕捉同事件跨源/跨角度报道）
+    invest_pool, invest_cluster_dropped = _deduplicate_by_cluster(invest_pool)
+    ai_pool, ai_cluster_dropped = _deduplicate_by_cluster(ai_pool)
+    log.info(f"[select] 簇去重后: INV={len(invest_pool)} (去除{len(invest_cluster_dropped)}篇) "
+             f"AI={len(ai_pool)} (去除{len(ai_cluster_dropped)}篇)")
 
     invest_selected = _select_bucket(invest_pool, INVEST_QUOTAS, "invest")
     ai_selected = _select_bucket(ai_pool, AI_QUOTAS, "ai")
