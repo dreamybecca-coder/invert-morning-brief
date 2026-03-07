@@ -1,0 +1,16 @@
+.env
+.DS_Store
+__pycache__/
+*.pyc
+scripts/__pycache__/
+daily_brief.json
+scored_articles.json
+raw_articles.json
+sources_status.json
+formatted_brief.json
+push_result.json
+dedup_cache.json
+sources_status.json
+logs/
+.claude/
+scripts/__pycache__/
