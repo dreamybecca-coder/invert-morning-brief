@@ -27,7 +27,7 @@
       {
         "id": "reuters-business",
         "name": "Reuters Business",
-        "url": "https://feeds.reuters.com/reuters/businessNews",
+        "url": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US",
         "tier": "S",
         "content_types": ["Breaking", "News"],
         "language": "en"
@@ -237,7 +237,7 @@
       {
         "id": "anthropic-blog",
         "name": "Anthropic Blog",
-        "url": "https://www.anthropic.com/news/rss",
+        "url": "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",
         "tier": "S",
         "content_types": ["Official", "Analysis"],
         "language": "en",
@@ -246,7 +246,7 @@
       {
         "id": "openai-blog",
         "name": "OpenAI Blog",
-        "url": "https://openai.com/blog/rss",
+        "url": "https://openai.com/news/rss.xml",
         "tier": "S",
         "content_types": ["Official", "Analysis"],
         "language": "en",
@@ -255,7 +255,7 @@
       {
         "id": "deepmind-blog",
         "name": "Google DeepMind Blog",
-        "url": "https://deepmind.google/blog/rss",
+        "url": "https://deepmind.google/blog/rss.xml",
         "tier": "S",
         "content_types": ["Official", "Research"],
         "language": "en",

@@ -36,8 +36,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; morning-brief/1.0; +https://i
 FULLTEXT_TIMEOUT = 8
 MAX_FULLTEXT_CHARS = 3000
 PAYWALL_DOMAINS = {
-    "bloomberg.com", "ft.com", "wsj.com",
+    "bloomberg.com", "wsj.com",
     "economist.com", "barrons.com", "theinformation.com",
+    # ft.com 已移除：FT直接HTTP抓取可得全文，无需archive.ph
 }
 
 

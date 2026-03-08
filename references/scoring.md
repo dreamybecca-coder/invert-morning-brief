@@ -99,6 +99,14 @@ AI产业链加权：涉及以下层次时 market_impact 自动+1（上限4）：
 1 = 长期背景，慢变量
 0 = 过时或重复
 
+⚠️ 注意区分文章发布日期和事件发生日期：
+- 如果文章是对历史事件的回顾、分析或评论（事件发生距今超过90天），
+  无论文章本身是今天发布的，urgency 最高为 2 分。
+- 判断依据：标题或正文中是否出现明确的历史时间节点，
+  如 'in 2023'、'two years ago'、'两年前'、'回顾'、'revisiting'、
+  'looking back'、'anniversary' 等关键词。
+- 示例：Gary Marcus今天发布的"回顾2023年Sam Altman被解雇事件"→ urgency=1（历史回顾，慢变量）
+
 维度5 信源权威性 source_authority:
 投资桶：
 4 = Bloomberg/FT/Reuters/Fed官方/Goldman Sachs研报
