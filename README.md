@@ -1,7 +1,7 @@
 # 🤖 Invert Morning Brief Skill
 
 > AI 产业链 + 投资资讯 · 每日自动聚合
-> 49个精选信源· Telegram 推送 · Obsidian 存档
+> 52个精选信源· Telegram 推送 · Obsidian 存档
 
 ---
 
@@ -9,7 +9,7 @@
 
 每天早上 8:30，系统自动：
 
-1. 从 **49 个精选信源**（Bloomberg / SemiAnalysis / MIT Tech Review 等）抓取过去 24 小时资讯
+1. 从 **52 个精选信源**（Bloomberg / SemiAnalysis / MIT Tech Review 等）抓取过去 24 小时资讯
 2. 尝试绕过付费墙获取全文，失败时优雅降级
 3. 用 **五维评分体系**（市场联动 / 信息稀缺 / 因果深度 / 时效 / 信源权威）对每篇文章打分
 4. 执行**事件级语义去重**，同一事件多源报道只保留最高分一篇
@@ -119,7 +119,7 @@ invert-morning-brief/
 │   └── validate.py           # 环境验证工具
 │
 ├── references/               # 规则配置文件（Skill 文档）
-│   ├── sources.json          # 49 个信源配置（URL + Tier + 权重）
+│   ├── sources.json          # 52 个信源配置（URL + Tier + 权重）
 │   ├── scoring.md            # 五维评分 Prompt（直接传入 LLM）
 │   ├── output-format.md      # Telegram + Obsidian 格式规范
 │   ├── domain-map.md         # AI 产业链六层地图 + 关键词权重
@@ -139,11 +139,11 @@ invert-morning-brief/
 
 ## 信源列表
 
-49 个精选信源，分两桶：
+52 个精选信源，分两桶：
 
-**投资桶（24 源）**：Bloomberg / FT / Reuters / WSJ / The Economist / Wolf Street / Seeking Alpha / Barron's / CNBC / Axios / Financial Times Economy / Wall Street Journal / 华尔街见闻 / 36Kr 投资 / 富途牛牛 ...
+**投资桶（25 源）**：Bloomberg / FT / Reuters（via Google News）/ The Economist / Wolf Street / Seeking Alpha / 36Kr 投资 / SEC EDGAR AI 8-K / POLITICO AI ...
 
-**AI 产业链桶（25 源）**：SemiAnalysis / MIT Tech Review / Anthropic Blog / OpenAI Blog / Wired AI / IEEE Spectrum / The Information / Interconnects / DataCenter Dynamics / arXiv cs.AI / 机器之心 / 量子位 / 36Kr AI / 少数派 ...
+**AI 产业链桶（27 源）**：Anthropic Blog / OpenAI Blog / Google DeepMind / xAI Blog / DeepSeek Blog / SemiAnalysis / Hacker News / MIT Tech Review / Wired AI / IEEE Spectrum / Ars Technica / DataCenter Dynamics / Interconnects / Import AI / Simon Willison / Fabricated Knowledge / One Useful Thing / Ahead of AI / ChinAI Newsletter / arXiv cs.AI ...
 
 完整配置见 `references/sources.json`。
 
@@ -171,6 +171,8 @@ invert-morning-brief/
 ## 去重机制
 
 **v3.0 新增事件级语义去重**，解决同一事件被多个媒体报道导致的配额浪费。
+
+**v4.0 (2026-03-10)：信源库升级至52源。** 新增 SEC EDGAR AI 8-K / xAI Blog / DeepSeek Blog / One Useful Thing / Ahead of AI / POLITICO AI / ChinAI Newsletter 共7源；移除停运的 MacroPolo 及低质信源；Reuters 通过 Google News RSS 重新接入；修复 FT / Anthropic / OpenAI / DeepMind 信源 URL。
 
 原理：提取每篇文章的核心实体组合（如"Anthropic + Pentagon"）作为事件指纹，相同指纹只保留评分最高的一篇。
 

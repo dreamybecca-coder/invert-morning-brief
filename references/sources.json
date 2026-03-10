@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "3.0",
-    "updated": "2026-03-01",
-    "total_sources": 49,
+    "version": "4.0",
+    "updated": "2026-03-10",
+    "total_sources": 52,
     "fetch_limits": {
       "S": 5,
       "A": 3,
@@ -11,7 +11,6 @@
     },
     "note": "C层仅在特定事件触发时手动开启，日常不抓取"
   },
-
   "bucket_invest": {
     "_description": "投资桶 · 每日目标Top10条",
     "tier_S": [
@@ -20,7 +19,10 @@
         "name": "Bloomberg Markets",
         "url": "https://feeds.bloomberg.com/markets/news.rss",
         "tier": "S",
-        "content_types": ["Breaking", "News"],
+        "content_types": [
+          "Breaking",
+          "News"
+        ],
         "language": "en",
         "note": "快讯+市场头条首选"
       },
@@ -29,7 +31,10 @@
         "name": "Reuters Business",
         "url": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US",
         "tier": "S",
-        "content_types": ["Breaking", "News"],
+        "content_types": [
+          "Breaking",
+          "News"
+        ],
         "language": "en"
       },
       {
@@ -37,7 +42,10 @@
         "name": "Financial Times Economy",
         "url": "https://www.ft.com/world/economy?format=rss",
         "tier": "S",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "note": "深度分析优先"
       },
@@ -46,7 +54,10 @@
         "name": "The Information",
         "url": "https://www.theinformation.com/feed",
         "tier": "S",
-        "content_types": ["Analysis", "Breaking"],
+        "content_types": [
+          "Analysis",
+          "Breaking"
+        ],
         "language": "en",
         "requires_auth": true,
         "note": "付费订阅，信息稀缺性最高"
@@ -56,7 +67,9 @@
         "name": "美联储公告",
         "url": "https://www.federalreserve.gov/feeds/press_all.xml",
         "tier": "S",
-        "content_types": ["Official"],
+        "content_types": [
+          "Official"
+        ],
         "language": "en",
         "note": "官方声明，无条件进投资桶Top Story"
       },
@@ -65,9 +78,28 @@
         "name": "SEC EDGAR 重大公告",
         "url": "https://efts.sec.gov/LATEST/search-index?q=%22artificial+intelligence%22&forms=8-K&dateRange=custom&startdt=TODAY",
         "tier": "S",
-        "content_types": ["Official"],
+        "content_types": [
+          "Official"
+        ],
         "language": "en",
         "note": "事件驱动，8-K重大事项披露"
+      },
+      {
+        "id": "sec-edgar-ai",
+        "name": "SEC EDGAR — AI相关8-K",
+        "url": "https://efts.sec.gov/LATEST/search-index?q=%22artificial+intelligence%22&forms=8-K",
+        "tier": "S",
+        "content_types": [
+          "Official"
+        ],
+        "language": "en",
+        "tags": [
+          "监管申报",
+          "企业公告",
+          "AI风险披露"
+        ],
+        "max_per_day": 2,
+        "note": "AI相关8-K披露，无日期过滤（与sec-edgar互补）"
       }
     ],
     "tier_A": [
@@ -76,7 +108,9 @@
         "name": "The Economist Finance",
         "url": "https://www.economist.com/finance-and-economics/rss.xml",
         "tier": "A",
-        "content_types": ["Analysis"],
+        "content_types": [
+          "Analysis"
+        ],
         "language": "en"
       },
       {
@@ -84,7 +118,10 @@
         "name": "华尔街见闻",
         "url": "https://wallstreetcn.com/rss",
         "tier": "A",
-        "content_types": ["Breaking", "News"],
+        "content_types": [
+          "Breaking",
+          "News"
+        ],
         "language": "zh"
       },
       {
@@ -92,7 +129,10 @@
         "name": "Caixin Global",
         "url": "https://www.caixinglobal.com/rss/latest_news.xml",
         "tier": "A",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "note": "中国经济最可靠英文源"
       },
@@ -101,7 +141,10 @@
         "name": "第一财经",
         "url": "https://www.yicai.com/rss",
         "tier": "A",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "zh"
       },
       {
@@ -109,7 +152,10 @@
         "name": "Goldman Sachs Intelligence",
         "url": "https://www.goldmansachs.com/intelligence/rss.xml",
         "tier": "A",
-        "content_types": ["Research", "Analysis"],
+        "content_types": [
+          "Research",
+          "Analysis"
+        ],
         "language": "en",
         "note": "Research配额优先来源"
       },
@@ -118,7 +164,10 @@
         "name": "a16z Future",
         "url": "https://a16z.com/feed/",
         "tier": "A",
-        "content_types": ["Analysis", "Opinion"],
+        "content_types": [
+          "Analysis",
+          "Opinion"
+        ],
         "language": "en",
         "note": "AI×投资叙事最权威VC"
       },
@@ -127,25 +176,21 @@
         "name": "Axios Markets",
         "url": "https://api.axios.com/feed/topics/markets",
         "tier": "A",
-        "content_types": ["Breaking", "News"],
+        "content_types": [
+          "Breaking",
+          "News"
+        ],
         "language": "en",
         "note": "Smart Brevity格式，快讯效率高"
-      },
-      {
-        "id": "macropolo",
-        "name": "MacroPolo",
-        "url": "https://macropolo.org/feed",
-        "tier": "A",
-        "content_types": ["Analysis"],
-        "language": "en",
-        "note": "中美AI竞争最权威英文智库"
       },
       {
         "id": "cailianshe",
         "name": "财联社",
         "url": "telegram://cailianshe",
         "tier": "A",
-        "content_types": ["Breaking"],
+        "content_types": [
+          "Breaking"
+        ],
         "language": "zh",
         "access_method": "telegram_channel",
         "note": "Telegram频道接入，无RSS"
@@ -157,7 +202,10 @@
         "name": "Barron's",
         "url": "https://www.barrons.com/topics/markets/rss",
         "tier": "B",
-        "content_types": ["Analysis", "Opinion"],
+        "content_types": [
+          "Analysis",
+          "Opinion"
+        ],
         "language": "en"
       },
       {
@@ -165,7 +213,10 @@
         "name": "Seeking Alpha",
         "url": "https://seekingalpha.com/feed.xml",
         "tier": "B",
-        "content_types": ["Analysis", "Opinion"],
+        "content_types": [
+          "Analysis",
+          "Opinion"
+        ],
         "language": "en"
       },
       {
@@ -173,7 +224,9 @@
         "name": "Wolf Street",
         "url": "https://wolfstreet.com/feed/",
         "tier": "B",
-        "content_types": ["Analysis"],
+        "content_types": [
+          "Analysis"
+        ],
         "language": "en",
         "note": "宏观反共识视角"
       },
@@ -182,7 +235,10 @@
         "name": "ARK Invest Blog",
         "url": "https://ark-invest.com/articles/feed/",
         "tier": "B",
-        "content_types": ["Research", "Analysis"],
+        "content_types": [
+          "Research",
+          "Analysis"
+        ],
         "language": "en"
       },
       {
@@ -190,7 +246,10 @@
         "name": "36Kr 投资",
         "url": "https://36kr.com/feed",
         "tier": "B",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "zh"
       },
       {
@@ -198,9 +257,26 @@
         "name": "Gary Marcus Substack",
         "url": "https://garymarcus.substack.com/feed",
         "tier": "B",
-        "content_types": ["Opinion"],
+        "content_types": [
+          "Opinion"
+        ],
         "language": "en",
         "note": "AI泡沫反叙事校准"
+      },
+      {
+        "id": "politico-ai",
+        "name": "POLITICO AI",
+        "url": "https://rss.politico.com/technology.xml",
+        "tier": "B",
+        "content_types": [
+          "News"
+        ],
+        "language": "en",
+        "tags": [
+          "AI监管",
+          "政策立法"
+        ],
+        "note": "AI监管政策，通过event_cluster与AI桶共享内容"
       }
     ],
     "tier_C": [
@@ -209,7 +285,9 @@
         "name": "POLITICO Tech",
         "url": "https://rss.politico.com/technology.xml",
         "tier": "C",
-        "content_types": ["News"],
+        "content_types": [
+          "News"
+        ],
         "trigger": "监管政策重大事件"
       },
       {
@@ -217,7 +295,10 @@
         "name": "CoinDesk",
         "url": "https://www.coindesk.com/arc/outboundfeeds/rss",
         "tier": "C",
-        "content_types": ["News", "Breaking"],
+        "content_types": [
+          "News",
+          "Breaking"
+        ],
         "trigger": "加密市场大幅波动"
       },
       {
@@ -225,12 +306,13 @@
         "name": "Crunchbase News",
         "url": "https://news.crunchbase.com/feed",
         "tier": "C",
-        "content_types": ["News"],
+        "content_types": [
+          "News"
+        ],
         "trigger": "重大融资/IPO事件"
       }
     ]
   },
-
   "bucket_ai": {
     "_description": "AI产业链桶 · 每日目标Top10条",
     "tier_S": [
@@ -239,7 +321,10 @@
         "name": "Anthropic Blog",
         "url": "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",
         "tier": "S",
-        "content_types": ["Official", "Analysis"],
+        "content_types": [
+          "Official",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "大模型层"
       },
@@ -248,7 +333,10 @@
         "name": "OpenAI Blog",
         "url": "https://openai.com/news/rss.xml",
         "tier": "S",
-        "content_types": ["Official", "Analysis"],
+        "content_types": [
+          "Official",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "大模型层"
       },
@@ -257,16 +345,60 @@
         "name": "Google DeepMind Blog",
         "url": "https://deepmind.google/blog/rss.xml",
         "tier": "S",
-        "content_types": ["Official", "Research"],
+        "content_types": [
+          "Official",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "大模型层"
+      },
+      {
+        "id": "xai-blog",
+        "name": "xAI Blog",
+        "url": "https://x.ai/news",
+        "tier": "S",
+        "content_types": [
+          "Official",
+          "Analysis"
+        ],
+        "language": "en",
+        "industry_layer": "大模型层",
+        "fetch_method": "web_search",
+        "fetch_query": "xAI Grok new model announcement",
+        "tags": [
+          "模型层",
+          "Grok"
+        ],
+        "note": "无RSS；fetch_method=web_search，待Fetcher v2支持前标记为not_rss跳过"
+      },
+      {
+        "id": "deepseek-blog",
+        "name": "DeepSeek Blog",
+        "url": "https://www.deepseek.com",
+        "tier": "S",
+        "content_types": [
+          "Official",
+          "Research"
+        ],
+        "language": "en",
+        "industry_layer": "大模型层",
+        "fetch_method": "web_search",
+        "fetch_query": "DeepSeek new model announcement release",
+        "tags": [
+          "模型层",
+          "中国AI前沿"
+        ],
+        "note": "无RSS；fetch_method=web_search，待Fetcher v2支持前标记为not_rss跳过"
       },
       {
         "id": "semianalysis",
         "name": "SemiAnalysis",
         "url": "https://semianalysis.substack.com/feed",
         "tier": "S",
-        "content_types": ["Analysis", "Research"],
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "芯片/算力/基础设施层",
         "note": "Dylan Patel团队，产业链数据最深，付费内容部分可抓摘要"
@@ -276,7 +408,10 @@
         "name": "Hacker News Top",
         "url": "https://hnrss.org/frontpage",
         "tier": "S",
-        "content_types": ["Breaking", "Opinion"],
+        "content_types": [
+          "Breaking",
+          "Opinion"
+        ],
         "language": "en",
         "note": "工程师第一手讨论，评分按内容重新判断"
       }
@@ -287,7 +422,10 @@
         "name": "DataCenter Dynamics",
         "url": "https://www.datacenterdynamics.com/en/rss/",
         "tier": "A",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "算力基础设施层"
       },
@@ -296,7 +434,10 @@
         "name": "IEEE Spectrum AI",
         "url": "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss",
         "tier": "A",
-        "content_types": ["Analysis", "Research"],
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "硬件+算法层"
       },
@@ -305,7 +446,10 @@
         "name": "Wired AI",
         "url": "https://www.wired.com/feed/tag/ai/latest/rss",
         "tier": "A",
-        "content_types": ["Analysis", "News"],
+        "content_types": [
+          "Analysis",
+          "News"
+        ],
         "language": "en",
         "industry_layer": "应用+叙事层"
       },
@@ -314,7 +458,9 @@
         "name": "MIT Technology Review",
         "url": "https://www.technologyreview.com/feed",
         "tier": "A",
-        "content_types": ["Analysis"],
+        "content_types": [
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "全层深度叙事"
       },
@@ -323,7 +469,10 @@
         "name": "Ars Technica Tech",
         "url": "https://feeds.arstechnica.com/arstechnica/technology-lab",
         "tier": "A",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "硬件+平台层"
       },
@@ -332,7 +481,10 @@
         "name": "Interconnects (Nathan Lambert)",
         "url": "https://www.interconnects.ai/feed",
         "tier": "A",
-        "content_types": ["Analysis", "Research"],
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "算法/训练层",
         "note": "Hugging Face研究员，RLHF/训练技术权威"
@@ -342,7 +494,10 @@
         "name": "Import AI (Jack Clark)",
         "url": "https://importai.substack.com/feed",
         "tier": "A",
-        "content_types": ["Analysis", "Research"],
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "AI研究前沿",
         "note": "Anthropic联合创始人，每周AI研究精读"
@@ -352,28 +507,57 @@
         "name": "Simon Willison Blog",
         "url": "https://simonwillison.net/atom/everything/",
         "tier": "A",
-        "content_types": ["Analysis", "Opinion"],
+        "content_types": [
+          "Analysis",
+          "Opinion"
+        ],
         "language": "en",
         "industry_layer": "AI工具应用层"
-      },
-      {
-        "id": "china-ai-weekly",
-        "name": "China AI Weekly",
-        "url": "https://chinai.substack.com/feed",
-        "tier": "A",
-        "content_types": ["Analysis"],
-        "language": "en",
-        "industry_layer": "中国AI竞争"
       },
       {
         "id": "fabricated-knowledge",
         "name": "Fabricated Knowledge",
         "url": "https://www.fabricatedknowledge.com/feed",
         "tier": "A",
-        "content_types": ["Analysis", "Research"],
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "芯片/半导体投资",
         "note": "Doug O'Laughlin，SemiAnalysis联合作者"
+      },
+      {
+        "id": "one-useful-thing",
+        "name": "One Useful Thing (Ethan Mollick)",
+        "url": "https://www.oneusefulthing.org/feed",
+        "tier": "A",
+        "content_types": [
+          "Analysis",
+          "Opinion"
+        ],
+        "language": "en",
+        "industry_layer": "AI企业应用层",
+        "tags": [
+          "AI应用",
+          "企业落地"
+        ]
+      },
+      {
+        "id": "ahead-of-ai",
+        "name": "Ahead of AI",
+        "url": "https://magazine.sebastianraschka.com/feed",
+        "tier": "A",
+        "content_types": [
+          "Analysis",
+          "Research"
+        ],
+        "language": "en",
+        "industry_layer": "算法研究→实践",
+        "tags": [
+          "ML研究",
+          "实践转化"
+        ]
       }
     ],
     "tier_B": [
@@ -382,35 +566,22 @@
         "name": "Utility Dive",
         "url": "https://www.utilitydive.com/feeds/news/",
         "tier": "B",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "能源/电力层",
         "note": "AI数据中心用电需求，核电/储能/电网政策"
-      },
-      {
-        "id": "ahead-of-ai",
-        "name": "Ahead of AI",
-        "url": "https://magazine.sebastianraschka.com/feed",
-        "tier": "B",
-        "content_types": ["Analysis", "Research"],
-        "language": "en",
-        "industry_layer": "算法研究→实践"
-      },
-      {
-        "id": "one-useful-thing",
-        "name": "One Useful Thing (Ethan Mollick)",
-        "url": "https://www.oneusefulthing.org/feed",
-        "tier": "B",
-        "content_types": ["Analysis", "Opinion"],
-        "language": "en",
-        "industry_layer": "AI企业应用层"
       },
       {
         "id": "asianometry",
         "name": "Asianometry",
         "url": "https://asianometry.substack.com/feed",
         "tier": "B",
-        "content_types": ["Analysis"],
+        "content_types": [
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "半导体/地缘",
         "note": "台积电/供应链地缘稀缺视角"
@@ -420,7 +591,9 @@
         "name": "arXiv cs.AI",
         "url": "https://arxiv.org/rss/cs.AI",
         "tier": "B",
-        "content_types": ["Research"],
+        "content_types": [
+          "Research"
+        ],
         "language": "en",
         "industry_layer": "技术前沿",
         "note": "仅取高被引/实验室一作预印本，评分时information_edge重点判断"
@@ -430,7 +603,10 @@
         "name": "404 Media",
         "url": "https://www.404media.co/rss",
         "tier": "B",
-        "content_types": ["News", "Analysis"],
+        "content_types": [
+          "News",
+          "Analysis"
+        ],
         "language": "en",
         "industry_layer": "AI实际影响报道"
       },
@@ -439,9 +615,28 @@
         "name": "Ed Zitron Substack",
         "url": "https://wheredidthesoftwarego.substack.com/feed",
         "tier": "B",
-        "content_types": ["Opinion"],
+        "content_types": [
+          "Opinion"
+        ],
         "language": "en",
         "note": "AI泡沫反叙事，防止系统性看多偏差"
+      },
+      {
+        "id": "chinai-newsletter",
+        "name": "ChinAI Newsletter",
+        "url": "https://chinai.substack.com/feed",
+        "tier": "B",
+        "content_types": [
+          "Analysis"
+        ],
+        "language": "en",
+        "industry_layer": "中美AI竞争",
+        "tags": [
+          "中美AI",
+          "政策",
+          "中文文献翻译"
+        ],
+        "note": "Jeffrey Ding，中美AI政策与中文文献英译，每周更新"
       }
     ],
     "tier_C": [
@@ -450,7 +645,9 @@
         "name": "NVIDIA Developer Blog",
         "url": "https://developer.nvidia.com/blog/feed",
         "tier": "C",
-        "content_types": ["Official"],
+        "content_types": [
+          "Official"
+        ],
         "trigger": "CUDA/硬件重大发布"
       },
       {
@@ -458,7 +655,9 @@
         "name": "Future of Life Institute",
         "url": "https://futureoflife.org/feed",
         "tier": "C",
-        "content_types": ["Analysis"],
+        "content_types": [
+          "Analysis"
+        ],
         "trigger": "AI监管/政策重大事件"
       },
       {
@@ -466,7 +665,9 @@
         "name": "Sequoia Capital Blog",
         "url": "https://www.sequoiacap.com/articles/feed/",
         "tier": "C",
-        "content_types": ["Research"],
+        "content_types": [
+          "Research"
+        ],
         "trigger": "季度VC趋势报告发布"
       }
     ]
