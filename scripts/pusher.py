@@ -48,7 +48,8 @@ def _send_telegram(text: str, chat_id: str, token: str) -> int:
             log.info(f"[push] Telegram 发送成功 (message_id={msg_id})")
             return msg_id
         except Exception as e:
-            log.warning(f"[push] Telegram 发送失败 attempt {attempt+1}: {e}")
+            safe_err = str(e).replace(token, "***TOKEN***") if token else str(e)
+            log.warning(f"[push] Telegram 发送失败 attempt {attempt+1}: {safe_err}")
             if attempt < TELEGRAM_RETRY - 1:
                 time.sleep(TELEGRAM_RETRY_INTERVAL)
 
