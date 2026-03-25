@@ -42,6 +42,11 @@ PAYWALL_DOMAINS = {
 }
 
 
+def _env_flag(name: str) -> bool:
+    """解析常见布尔环境变量"""
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 # ── 全文提取 ──────────────────────────────────────────────────────────────────
 
 def _extract_main_text(html: str) -> str:
@@ -160,7 +165,13 @@ def _parse_published(entry) -> datetime | None:
 
 # ── RSS 抓取 ─────────────────────────────────────────────────────────────────
 
-def _fetch_rss(src: dict, cutoff: datetime, cache: dict[str, str], limit: int) -> list[dict]:
+def _fetch_rss(
+    src: dict,
+    cutoff: datetime,
+    fetch_until: datetime | None,
+    cache: dict[str, str],
+    limit: int,
+) -> list[dict]:
     """抓取单个 RSS 源，返回原始文章列表"""
     url = src["url"]
     if "TODAY" in url:
@@ -197,6 +208,8 @@ def _fetch_rss(src: dict, cutoff: datetime, cache: dict[str, str], limit: int) -
             # 无时间信息，默认视为今天
             pub = datetime.now(timezone.utc)
         if pub < cutoff:
+            continue
+        if fetch_until and pub >= fetch_until:
             continue
 
         # 去重
@@ -235,7 +248,7 @@ def _fetch_rss(src: dict, cutoff: datetime, cache: dict[str, str], limit: int) -
         articles.append(art)
         cache[h] = datetime.now(timezone.utc).isoformat()
 
-    log.info(f"[fetch] {src['id']}: {len(articles)} 篇（今日）")
+    log.info(f"[fetch] {src['id']}: {len(articles)} 篇（窗口内）")
     return articles
 
 
@@ -255,9 +268,24 @@ def run_fetch(date: str, dry_run: bool, input_file: str = "sources_status.json",
     fetch_limits = sources_data["_meta"]["fetch_limits"]
 
     # 去重缓存
-    cache = _load_dedup_cache()
+    ignore_dedup = _env_flag("BRIEF_IGNORE_DEDUP")
+    if ignore_dedup:
+        cache = {}
+        log.warning("[fetch] BRIEF_IGNORE_DEDUP=1，跳过 48h 去重缓存（用于手动补跑）")
+    else:
+        cache = _load_dedup_cache()
 
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HOURS)
+    # 支持手动补跑：BRIEF_FETCH_SINCE / BRIEF_FETCH_UNTIL 指定精确时间窗口
+    fetch_since_str = os.getenv("BRIEF_FETCH_SINCE", "")
+    fetch_until_str = os.getenv("BRIEF_FETCH_UNTIL", "")
+    if fetch_since_str:
+        cutoff = datetime.fromisoformat(fetch_since_str).astimezone(timezone.utc)
+        log.warning(f"[fetch] BRIEF_FETCH_SINCE={fetch_since_str}，使用自定义起始时间")
+    else:
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=LOOKBACK_HOURS)
+    fetch_until = datetime.fromisoformat(fetch_until_str).astimezone(timezone.utc) if fetch_until_str else None
+    if fetch_until:
+        log.warning(f"[fetch] BRIEF_FETCH_UNTIL={fetch_until_str}，使用自定义结束时间")
     all_articles: list[dict] = []
 
     for bucket_key in ["bucket_invest", "bucket_ai"]:
@@ -280,7 +308,7 @@ def run_fetch(date: str, dry_run: bool, input_file: str = "sources_status.json",
 
                 arts = _fetch_rss(
                     {**src, "source_bucket": bucket_name},
-                    cutoff, cache, limit
+                    cutoff, fetch_until, cache, limit
                 )
                 all_articles.extend(arts)
 

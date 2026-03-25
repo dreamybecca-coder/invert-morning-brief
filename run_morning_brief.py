@@ -63,7 +63,7 @@ def run(date_str: str, dry_run: bool, phase: str | None):
 
     log = logging.getLogger("morning-brief")
     start_time = datetime.now()
-    state = {"date": date_str, "dry_run": dry_run, "errors": []}
+    state = {"date": date_str, "dry_run": dry_run, "errors": [], "warnings": []}
 
     # (fn, required_input_file_or_None, output_file)
     phases = {
@@ -95,6 +95,11 @@ def run(date_str: str, dry_run: bool, phase: str | None):
                 output_file=output_file,
             )
             log.info(f"[Phase:{p}] 完成 → {result}")
+            if result.get("status") not in (None, "success"):
+                note = f"{p}: {result.get('status')}"
+                state["warnings"].append(note)
+                log.warning(f"[Phase:{p}] 非成功状态 → {result}")
+                _send_alert(f"morning-brief [{date_str}] Phase {p} 状态：{result}", dry_run)
         except Exception as e:
             log.exception(f"[Phase:{p}] 异常: {e}")
             state["errors"].append(f"{p}: {str(e)}")
@@ -103,8 +108,11 @@ def run(date_str: str, dry_run: bool, phase: str | None):
                 break
 
     state["duration_seconds"] = (datetime.now() - start_time).seconds
-    state["status"] = "success" if not state["errors"] else "partial"
-    log.info(f"[Done] {state['status']} in {state['duration_seconds']}s | errors={state['errors']}")
+    state["status"] = "success" if not state["errors"] and not state["warnings"] else "partial"
+    log.info(
+        f"[Done] {state['status']} in {state['duration_seconds']}s | "
+        f"errors={state['errors']} warnings={state['warnings']}"
+    )
     return state
 
 

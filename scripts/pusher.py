@@ -26,6 +26,14 @@ TELEGRAM_RETRY_INTERVAL = 10
 MESSAGE_GAP = 5  # 两桶消息间隔秒数
 
 
+def _is_empty_bucket_placeholder(content: str) -> bool:
+    return "total_articles: 0" in content
+
+
+def _env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 # ── Telegram 推送 ─────────────────────────────────────────────────────────────
 
 def _send_telegram(text: str, chat_id: str, token: str) -> int:
@@ -67,15 +75,24 @@ def _write_obsidian(date: str, content: str, bucket: str, vault: str):
 
     path = Path(vault) / rel
     path.parent.mkdir(parents=True, exist_ok=True)
+    overwrite = _env_flag("BRIEF_OBSIDIAN_OVERWRITE")
 
     if path.exists():
-        log.warning(f"[push] {path.name} 已存在，跳过写入（使用 Skill 2 tagger.py 更新字段）")
-        return
+        if overwrite:
+            log.warning(f"[push] {path.name} 已存在，按 BRIEF_OBSIDIAN_OVERWRITE=1 覆盖重写")
+            path.unlink()
+        elif path.stat().st_size < 500:
+            log.warning(f"[push] {path.name} 过小，删除后重写")
+            path.unlink()
+        else:
+            log.warning(f"[push] {path.name} 已存在，跳过写入（使用 Skill 2 tagger.py 更新字段）")
+            return
 
     path.write_text(content, encoding="utf-8")
     size = path.stat().st_size
 
-    if size < 500:
+    if size < 500 and not _is_empty_bucket_placeholder(content):
+        path.unlink(missing_ok=True)
         raise RuntimeError(f"Obsidian 文件写入异常，字节数过小: {size} bytes → {path}")
 
     log.info(f"[push] Obsidian 写入成功: {path} ({size} bytes)")
@@ -175,18 +192,30 @@ def run_push(date: str, dry_run: bool, input_file: str = "daily_brief.json",
             for bucket, content in [("invest", invest_ob), ("ai", ai_ob)]:
                 try:
                     _write_obsidian(date, content, bucket, vault)
+                    result[bucket]["obsidian_status"] = "ok"
                 except Exception as e:
                     log.error(f"[push] Obsidian {bucket} 写入失败: {e}，备份到本地")
                     _obsidian_backup(date, content, bucket)
+                    result[bucket]["obsidian_status"] = "backup"
         else:
             log.warning("[push] OBSIDIAN_VAULT_PATH 未设置，跳过 Obsidian 写入")
+            result["invest"]["obsidian_status"] = "skipped"
+            result["ai"]["obsidian_status"] = "skipped"
 
     if output_file:
         Path(output_file).write_text(
             json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
-    return {"status": "success", "count": 20}
+    statuses = [result[b]["status"] for b in ("invest", "ai")]
+    obsidian_statuses = [result[b].get("obsidian_status", "ok") for b in ("invest", "ai")]
+    phase_status = "success"
+    if any(s != "ok" for s in statuses):
+        phase_status = "warning"
+    if any(s == "backup" for s in obsidian_statuses):
+        phase_status = "warning"
+
+    return {"status": phase_status, "count": 20}
 
 
 if __name__ == "__main__":
